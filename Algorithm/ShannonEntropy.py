@@ -3,11 +3,10 @@ import math
 
 
 class ShannonEntropy(AbstractEntropyAlgorithm):
-    def __init__(self, data):
-        AbstractEntropyAlgorithm.__init__(self, data)
+    
         
-    def execute(self):
-        self.countCharacters()
+    def calculate(self, data):
+        self.countCharacters(data)
         entropy = 0
         for occurence in self.characters.values():
             frequency = occurence / self.totalCharacters
