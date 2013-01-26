@@ -1,9 +1,10 @@
 from Algorithm.ShannonEntropy import *
-import Utils
+from IO.inputs import *
+
 
 
 if __name__ == "__main__":
-    text = Utils.read_file("fichiertest.txt")
+    text = InputFile("fichiertest.txt")
     variable = ShannonEntropy()
-    entropy = variable.calculate(text);
+    entropy = variable.calculate(text)
     print(entropy)
