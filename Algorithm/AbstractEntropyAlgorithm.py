@@ -10,9 +10,9 @@ class AbstractEntropyAlgorithm(AbstractAlgorithm):
             data = str(data)
             for i in data:
                 self.totalCharacters += 1
-                try:
+                if i in self.characters:
                     self.characters[i] = self.characters[i] + 1
-                except:
+                else:
                     self.characters[i] = 1
         except:
             self.characters[0] = 1

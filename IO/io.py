@@ -13,7 +13,10 @@ class IO:
         return self.data
     
     def add(self, name, value):
-        self.data[name] = value
+        if name in self.data:
+            self.data[name] += value
+        else:
+            self.data[name] = value
         
 
     
