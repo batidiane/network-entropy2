@@ -11,7 +11,7 @@ import socket
 import struct
 from libpcap.packet import decode_ip_packet
 
-    
+#see http://pylibpcap.sourceforge.net/
 def execute(inputdata, outputclass, algorithmclass):
     #module = __import__('Algorithm', fromlist='ShannonEntropy')
     #module = __import__('Algorithm.%s'%algorithmclass,fromlist=['Algorithm'])

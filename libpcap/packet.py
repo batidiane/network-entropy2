@@ -5,6 +5,8 @@ import time
 import socket
 import struct
 
+#see http://pylibpcap.sourceforge.net/
+
 protocols={socket.IPPROTO_TCP:'tcp',
            socket.IPPROTO_UDP:'udp',
            socket.IPPROTO_ICMP:'icmp'}
