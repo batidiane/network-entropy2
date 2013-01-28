@@ -5,13 +5,13 @@ import math
 class ShannonEntropy(AbstractEntropyAlgorithm):
     
         
-    def calculate(self, inputdata):
-        self.countCharacters(inputdata)
+    def calculate(self, data):
+        self.countCharacters(data)
         entropy = 0
         for occurence in self.characters.values():
-            frequency = occurence / self.totalCharacters
-            entropy += frequency * math.log2(frequency)
+            frequency = occurence / float(self.totalCharacters)
+            entropy += frequency * math.log(frequency,2)
         return -entropy
     
     def getName(self):
-        "Shannon Entropy"
+        return "Shannon Entropy"

@@ -3,16 +3,21 @@ from Algorithm.AbstractAlgorithm import *
 class AbstractEntropyAlgorithm(AbstractAlgorithm):
     
         
-    def countCharacters(self, inputdata):
+    def countCharacters(self, data):
         self.characters = {}
         self.totalCharacters = 0
-        for i in inputdata.getData():
-            self.totalCharacters += 1
-            try:
-                self.characters[i] = self.characters[i] + 1
-            except:
-                self.characters[i] = 1
-    
+        try:
+            data = str(data)
+            for i in data:
+                self.totalCharacters += 1
+                try:
+                    self.characters[i] = self.characters[i] + 1
+                except:
+                    self.characters[i] = 1
+        except:
+            self.characters[0] = 1
+            self.totalCharacters = 1
+
         
     def getCharacters(self):
         return self.characters

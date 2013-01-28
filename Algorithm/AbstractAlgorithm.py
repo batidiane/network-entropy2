@@ -2,7 +2,7 @@
 
 class AbstractAlgorithm:
         
-    def calculate(self, inputdata):
+    def calculate(self, data):
         raise NotImplementedError
     
     def getName(self):
