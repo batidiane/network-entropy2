@@ -11,7 +11,11 @@ import sys
 
 
 
-for mod_name in IO.__all__:
-    mod = __import__('IO.'+mod_name, fromlist=IO.__all__)
-    print mod_name
-    mod_instance = getattr(mod, 'ConsoleOutput')()
+for mod_name in Algorithm.__all__:
+    mod = __import__('Algorithm.'+mod_name, fromlist=Algorithm.__all__)
+    #print mod_name
+    mod_instance = getattr(mod, mod_name)()
+    try:
+        print mod_instance.getName()
+    except:
+        pass

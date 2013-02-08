@@ -1,3 +1,4 @@
+#!/usr/bin/python
 from IO.io import *
 import IO
 import libpcap
@@ -8,61 +9,54 @@ import string
 import time
 import socket
 import struct
-from libpcap.packet import decode_ip_packet
+from libpcap.packet import *
+import sys
+import string
+import struct
+import argparse
 
 #see http://pylibpcap.sourceforge.net/
 
-out_list = {} #global dict contains all result (output)
+
 output_class_name = ''
 algorithm_list = [] #algorithms to be loaded
+keys_to_calculate = []
+keys_to_print = []
 
 
 def execute(inputdata, outputclass, algorithm):
-    module = __import__('IO.io', fromlist=IO.__all__)
-    outputdata = getattr(module, outputclass)(algorithm.getName())
-    data = inputdata.getData()
-    for key in data:
-        entropy = algorithm.calculate(data[key])
-        outputdata.add(key, entropy)
-    return outputdata
+    inputdata.apply_function(keys_to_calculate, algorithm.calculate) 
+    inputdata.add('algorithm', algorithm.getName())
+    return inputdata
 
-def capture(pktlen, data, timestamp):
+def analysepacket(pktlen, data, timestamp):
     global out_list
     global algorithm_list
     global output_class_name
     if not data:
         return
-    if data[12:14]=='\x08\x00':
-        for algo in algorithm_list:
-            inputpacket = InputIPPacket(decode_ip_packet(data))
+    for algo in algorithm_list:
+        #inputpacket = InputIPPacket(decode_ip_packet(data))
+        pktinfos, payload = extractpayload(dpkt.ethernet.Ethernet(data))
+        if pktinfos and payload:
+            inputpacket = IPPacket(pktinfos, payload, timestamp)
             out = execute(inputpacket, output_class_name, algo)
-            out.printOutput()
-            if algo.getName() in out_list:
-                out_list[algo.getName()].append(out)
-            else:
-                out_list[algo.getName()] = []
-                out_list[algo.getName()].append(out)
+            out.printData(keys_to_print)
             
 def load_algorithm(algorithm_name):
     global algorithm_list
-    module = __import__('Algorithm.'+algorithm_name, fromlist=Algorithm.__all__)
-    algorithm = getattr(module, algorithm_name)()
-    algorithm_list.append(algorithm)
-        
-def statistics(final_list, classname):
-    module = __import__('IO.io', fromlist=IO.__all__)
-    #outputstats = getattr(module, classname)('Statistics')
-    for key in final_list:
-        outputstats = getattr(module, classname)('Statistics average '+key)
-        count = 0
-        for i in final_list[key]:
-            count += 1
-            for attr, value in i.getData().items():
-                #print attr+'='+str(value)
-                outputstats.add(attr, value)
-        for attr, value in outputstats.getData().items():
-            outputstats.getData()[attr] = value / count
-        outputstats.printOutput()
+    keys_to_print.append(algorithm_name)
+    for mod_name in Algorithm.__all__:
+        mod = __import__('Algorithm.'+mod_name, fromlist=Algorithm.__all__)
+        mod_instance = getattr(mod, mod_name)()
+        try:
+            if algorithm_name == mod_instance.getName():
+                algorithm_list.append(mod_instance)
+        except:
+            pass
+def load_algorithms(algorithm_names):
+    for name in algorithm_names:
+        load_algorithm(name)
         
 if __name__ == "__main__":
     #text = InputFile("fichiertest.txt")
@@ -71,26 +65,56 @@ if __name__ == "__main__":
     global out_list
     global algorithm_list
     global output_class_name
-    output_class_name = 'ConsoleOutput'
-    load_algorithm('ShannonEntropy')
-    if len(sys.argv) < 3:
-        print 'usage: sniff.py <interface> <expr>'
-        sys.exit(0)
+    global keys_to_calculate
+    global keys_to_print
+    keys_to_print.append('src_addr')
+    keys_to_print.append('dst_addr')
+    keys_to_print.append('proto_name')
+    keys_to_print.append('algorithm')
+    keys_to_print.append('payload entropy')
+    keys_to_print.append('timestamp')
     
+    keys_to_calculate.append('payload')
+    output_class_name = 'Data'
+    #load_algorithm('shannon')
+    parser = argparse.ArgumentParser(description='Calculate entropy from live capture or pcap file')
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument('-i', '--interface', dest='interface', help='live capture from an interface (default:lo)')
+    group.add_argument('-f', '--file', dest='pcapfile', help='filename of a capture file to read from')
+    parser.add_argument('-a', '--algo', dest="algo", help='entropy algorithm. 2 choices: "sha" for shannon entropy or "kol" for kolmogorov')
+    parser.add_argument('bpf', help='BPF filter like "tcp and port 22"')
+    options = parser.parse_args()
+    
+    if options.interface:
+        interface = options.interface
+        live = True
+    elif options.pcapfile:
+        interface = options.pcapfile
+        live = False
+    else:
+        interface = 'lo'
+        live = True
+    
+    if options.algo:
+        algorithms = options.algo
+    load_algorithms(algorithms.split())
+    bpf = options.bpf
     p = pcap.pcapObject()
-    #dev = pcap.lookupdev()
-    dev = sys.argv[1]
-    net, mask = pcap.lookupnet(dev)
-    # note:  to_ms does nothing on linux
-    p.open_live(dev, 1600, 0, 100)
-    #p.dump_open('dumpfile')
-    p.setfilter(string.join(sys.argv[2:],' '), 0, 0)
+    if True == live :
+        net, mask = pcap.lookupnet(interface)
+        p.open_live(interface, 65535, 0, 50)
+    else:
+        p.open_offline(interface)
+    p.setfilter(bpf, 0, 0)
+
+    # try-except block to catch keyboard interrupt.  Failure to shut
+    # down cleanly can result in the interface not being taken out of promisc.
+    # mode
     try:
         while 1:
-            p.dispatch(1, capture)
-            #apply(capture, p.next())
+            p.dispatch(1, analysepacket)
+            
     except KeyboardInterrupt:
         print '%s' % sys.exc_type
         print 'shutting down'
         print '%d packets received, %d packets dropped, %d packets dropped by interface' % p.stats()
-        statistics(out_list, 'ConsoleOutput')

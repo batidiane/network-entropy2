@@ -7,7 +7,6 @@ class AbstractEntropyAlgorithm(AbstractAlgorithm):
         self.characters = {}
         self.totalCharacters = 0
         try:
-            data = str(data)
             for i in data:
                 self.totalCharacters += 1
                 if i in self.characters:

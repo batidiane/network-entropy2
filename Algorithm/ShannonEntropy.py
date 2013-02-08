@@ -9,9 +9,10 @@ class ShannonEntropy(AbstractEntropyAlgorithm):
         self.countCharacters(data)
         entropy = 0
         for occurence in self.characters.values():
-            frequency = occurence / float(self.totalCharacters)
-            entropy += frequency * math.log(frequency,2)
+            frequency = float(occurence) / len(data)
+            if frequency > 0:
+                entropy += frequency * math.log(frequency,2)
         return -entropy
     
     def getName(self):
-        return "Shannon Entropy"
+        return "shannon"
