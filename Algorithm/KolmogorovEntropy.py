@@ -4,6 +4,9 @@ import zlib
 
 class KolmogorovEntropy(AbstractEntropyAlgorithm):
     
+    def __init__(self):
+        AbstractEntropyAlgorithm.__init__(self, "kolmogorov")
+    
     # Reasonable approximation to the Kolmogorov Complexity
         # using the compression rate
         # ref.: http://lorenzoriano.wordpress.com/tag/python/
@@ -13,5 +16,4 @@ class KolmogorovEntropy(AbstractEntropyAlgorithm):
         c = float(len(compr))
         return c/l
     
-    def getName(self):
-        return "kolmogorov"
+

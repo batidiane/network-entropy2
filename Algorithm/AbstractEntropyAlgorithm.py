@@ -2,6 +2,8 @@ from Algorithm.AbstractAlgorithm import *
 
 class AbstractEntropyAlgorithm(AbstractAlgorithm):
     
+    def __init__(self, name):
+        AbstractAlgorithm.__init__(self, name, "entropy")
         
     def countCharacters(self, data):
         self.characters = {}
@@ -20,3 +22,4 @@ class AbstractEntropyAlgorithm(AbstractAlgorithm):
         
     def getCharacters(self):
         return self.characters
+    

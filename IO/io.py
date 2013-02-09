@@ -17,10 +17,10 @@ class Data:
     def printData(self, keys):
         self.printer.printData(keys, self.data)
 
-    def apply_function(self, keys, function):
+    def apply_function(self, keys, function, typefunctionname):
         for key in keys:
             try:
-                self.data[key+' entropy'] = function(self.data[key])
+                self.data[key+'_'+typefunctionname] = function(self.data[key])
             except:
                 pass
 
@@ -36,8 +36,7 @@ class IPPacket(Data):
         self.add('payload', payload)
  
         
-    def printData(self, keys):
-        self.printer.printData(keys, self.data)
+
         
 
         

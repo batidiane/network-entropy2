@@ -25,7 +25,7 @@ keys_to_print = []
 
 
 def execute(inputdata, outputclass, algorithm):
-    inputdata.apply_function(keys_to_calculate, algorithm.calculate) 
+    inputdata.apply_function(keys_to_calculate, algorithm.calculate, algorithm.getType()) 
     inputdata.add('algorithm', algorithm.getName())
     return inputdata
 
@@ -52,6 +52,7 @@ def load_algorithm(algorithm_name):
         try:
             if algorithm_name == mod_instance.getName():
                 algorithm_list.append(mod_instance)
+                keys_to_print.append(mod_instance.getName()+'_'+mod_instance.getType())
         except:
             pass
 def load_algorithms(algorithm_names):
