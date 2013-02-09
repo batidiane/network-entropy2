@@ -24,10 +24,10 @@ keys_to_calculate = []
 keys_to_print = []
 
 
-def execute(inputdata, outputclass, algorithm):
-    inputdata.apply_function(keys_to_calculate, algorithm.calculate, algorithm.getType()) 
-    inputdata.add('algorithm', algorithm.getName())
-    return inputdata
+def execute(inputdata,  algorithm):
+    inputdata.apply_function(keys_to_calculate, algorithm) 
+    #inputdata.add('algorithm', algorithm.getName())
+    #return inputdata
 
 def analysepacket(pktlen, data, timestamp):
     global out_list
@@ -35,24 +35,24 @@ def analysepacket(pktlen, data, timestamp):
     global output_class_name
     if not data:
         return
-    for algo in algorithm_list:
-        #inputpacket = InputIPPacket(decode_ip_packet(data))
-        pktinfos, payload = extractpayload(dpkt.ethernet.Ethernet(data))
-        if pktinfos and payload:
-            inputpacket = IPPacket(pktinfos, payload, timestamp)
-            out = execute(inputpacket, output_class_name, algo)
-            out.printData(keys_to_print)
+    
+    #inputpacket = InputIPPacket(decode_ip_packet(data))
+    pktinfos, payload = extractpayload(dpkt.ethernet.Ethernet(data))
+    if pktinfos and payload:
+        inputpacket = IPPacket(pktinfos, payload, timestamp)
+        for algo in algorithm_list:
+            execute(inputpacket, algo)
+        inputpacket.printData(keys_to_print)
             
 def load_algorithm(algorithm_name):
     global algorithm_list
-    keys_to_print.append(algorithm_name)
+    #keys_to_print.append(algorithm_name)
     for mod_name in Algorithm.__all__:
         mod = __import__('Algorithm.'+mod_name, fromlist=Algorithm.__all__)
         mod_instance = getattr(mod, mod_name)()
         try:
             if algorithm_name == mod_instance.getName():
                 algorithm_list.append(mod_instance)
-                keys_to_print.append(mod_instance.getName()+'_'+mod_instance.getType())
         except:
             pass
 def load_algorithms(algorithm_names):
@@ -71,7 +71,7 @@ if __name__ == "__main__":
     keys_to_print.append('src_addr')
     keys_to_print.append('dst_addr')
     keys_to_print.append('proto_name')
-    keys_to_print.append('algorithm')
+    #keys_to_print.append('algorithm')
     keys_to_print.append('payload entropy')
     keys_to_print.append('timestamp')
     

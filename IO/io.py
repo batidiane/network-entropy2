@@ -1,6 +1,7 @@
 from Utils import *
 import IO
 class Data:
+    keys_calculated = []
     def __init__(self, printname):
         self.printer = load_printer(printname)
         self.data = {}
@@ -15,12 +16,15 @@ class Data:
         else:
             self.data[name] = value
     def printData(self, keys):
-        self.printer.printData(keys, self.data)
+        self.printer.printData(keys, Data.keys_calculated, self.data)
 
-    def apply_function(self, keys, function, typefunctionname):
+    def apply_function(self, keys, algorithm):
         for key in keys:
             try:
-                self.data[key+'_'+typefunctionname] = function(self.data[key])
+                new_key = key+'_'+algorithm.getName()+'_'+algorithm.getType()
+                self.data[new_key] = algorithm.calculate(self.data[key])
+                if new_key not in Data.keys_calculated:
+                    Data.keys_calculated.append(new_key)
             except:
                 pass
 
