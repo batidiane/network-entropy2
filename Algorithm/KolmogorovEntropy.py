@@ -6,6 +6,7 @@ class KolmogorovEntropy(AbstractEntropyAlgorithm):
     
     def __init__(self):
         AbstractEntropyAlgorithm.__init__(self, "kolmogorov")
+        self.type = "complexity"
     
     # Reasonable approximation to the Kolmogorov Complexity
         # using the compression rate

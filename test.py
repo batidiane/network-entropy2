@@ -71,8 +71,8 @@ if __name__ == "__main__":
     keys_to_print.append('src_addr')
     keys_to_print.append('dst_addr')
     keys_to_print.append('proto_name')
-    #keys_to_print.append('algorithm')
-    keys_to_print.append('payload entropy')
+    keys_to_print.append('src_port')
+    keys_to_print.append('dst_port')
     keys_to_print.append('timestamp')
     
     keys_to_calculate.append('payload')
